@@ -50,18 +50,18 @@ hr {
 
 #coin,
 #clp {
-  color: #809199;
+  color: rgb(57, 59, 59);
 }
 
 #search-btn {
-  background-color: #0a7b91;
+  background-color: #45747e;
   color: white;
-  border: solid #345861 3.5px;
+  border: solid #ffffff 3.5px;
   font-weight: bold;
 }
 
 #search-btn:hover {
-  background-color: #1a6473;
+  background-color: #587b82;
   color: #0f6075;
   border: solid #165362 3.5px;
   transition: 0.5s;
