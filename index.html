@@ -1,221 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/217/217853.png">
     <title>Conversor de monedas</title>
-</head>
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    font-family: 'Roboto', sans-serif;
-}
-
-.container {
-    background-color: #2b4a64;
-    color: white;
-    justify-content: center;
-    text-align: center;
-    padding-bottom: 50px;
-    border-radius: 0.2rem;
-}
-
-.converter {
-    background-color: #494c4e;
-    width: 230px;
-    border-radius: 0.2rem;
-    padding: 20px 0px 20px 0;
-    margin: 20px auto 20px auto;
-}
-
-.input-container {
-    padding-top: 20px;
-}
-
-hr{
-    height: 1px;
-    background-color: #1e373e;
-    border: none;
-    width: 80%;
-    margin: 20px auto 20px auto;
-}
-
-.graph {
-    background-color: 202529;
-}
-
-#clp, #coin, #search-btn {
-    width: 180px;
-    text-align: center;
-    border-radius: 0.2rem;
-    margin: 8px auto 10px auto;
-    height: 35px;
-    border: none;
-}
-
-#coin, #clp {
-    color: #809199;
-}
-
-#search-btn {
-    background-color: #0a7b91;
-    color: white;
-    border: solid #345861 3.5px;
-    font-weight: bold;
-}
-
-#search-btn:hover {
-    background-color: #1a6473;
-    color: #0f6075;
-    border: solid #165362 3.5px;
-    transition: 0.5s;
-}
-
-#result-chart {
-    margin: 20px;
-    background-color: white;
-    display: none;
-    border-radius: 0.2rem;
-
-}
-</style>
-<body>
-
+  </head>
+  <body>
     <div class="container">
+      <div class="input-container">
+        <h1>Prueba <br />Conversor De Monedas</h1>
+        <div class="converter">
+          <h3>Pesos CLP</h3>
+          <input type="text" id="clp" placeholder="Ingrese monto en CLP" />
 
-        <div class="input-container">
-            <hr>
-            <h1>Prueba <br>Conversor De Monedas</h1>
-            <hr>
-            <div class="converter">
-                
-                <h3>Pesos CLP</h3>
-                <input type="text" id="clp" placeholder="Ingrese monto en CLP">
+          <p id="amount">Moneda a convertir:</p>
+          <select id="coin">
+            <option selected="selected" disabled="disabled">
+              Seleccione moneda
+            </option>
+            <option value="dolar">Dolar</option>
+            <option value="euro">Euro</option>
+            <option value="uf">Unidad de fomento (UF)</option>
+            <option value="utm">Unidad Tributaria Mensual (UTM)</option>
+            <option value="libra_cobre">Libra de Cobre</option>
+            <option value="bitcoin">Bitcoin</option>
+          </select>
+          <br />
+          <button type="button" id="search-btn" onclick="convert()">
+            Buscar
+          </button>
 
-                <p id="amount">Moneda a convertir:</p>
-                <select id="coin">
-                    <option selected="selected" disabled="disabled">Seleccione moneda</option>
-                    <option value="dolar">Dolar</option>
-                    <option value="euro">Euro</option>
-                    <option value="uf">Unidad de fomento (UF)</option>
-                    <option value="utm">Unidad Tributaria Mensual (UTM)</option>
-                    <option value="libra_cobre">Libra de Cobre</option>
-                    <option value="bitcoin">Bitcoin</option>
-                </select>
-                <br>
-                <button type="button" id="search-btn" onclick="convert()">Buscar</button>
-
-                <p id="result">...</p>
-
-            </div>
+          <p id="result">...</p>
         </div>
+      </div>
 
-        <div class="chart-title"></div>
+      <div class="chart-title"></div>
 
-        <div class="graph">
-            <canvas id="result-chart"></canvas>
-        </div>
-
+      <div class="graph">
+        <canvas id="result-chart"></canvas>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>                      
-      const clp = document.getElementById("clp");
-const urlAPI = "https://mindicador.cl/api";
-const result = document.getElementById("result");
-const tabla = document.getElementById("lista-usuario");
-const coin = document.getElementById("coin");
-const chartDOM = document.getElementById("result-chart").getContext("2d");
-const amount = document.getElementById("amount");
-
-async function getMoney(url) {
-    try {
-        const res = await fetch(url);
-        const coins = await res.json();
-        return coins;
-    } catch (e) {
-        alert("Ha ocurrido un problema. Intente nuevamente");
-    }
-}
-
-async function convert() {
-    const currency = coin.options[coin.selectedIndex].text.substring(0, 3);
-
-    if (clp.value == "" || isNaN(clp.value) || clp.value < 0) {
-        alert("Ingrese un monto válido");
-        cleanPage();
-    }
-    else {
-        try {
-            const currencies = await getMoney(urlAPI);
-  
-            result.innerHTML = `Resultado: $${new Intl.NumberFormat("de-DE", {
-            style: "currency", currency: currency}).format((clp.value / currencies[coin.value].valor).toFixed(2))}`;
-            renderGraph();
-        } 
-        catch (err) {
-            alert("Ha ocurrido un problema. Intente nuevamente");
-        }
-    }
-}
-
-async function loadData(coin) {
-    try {
-        const currency = await getMoney(urlAPI + "/" + coin.value);
-        const dates = currency.serie.map((ele) => {
-            return ele.fecha.split("T")[0];
-        });
-        const graphData = currency.serie.map((lbl) => {return lbl.valor;});
-        return { dates, graphData };
-    } catch (e) {
-        alert("Ha ocurrido un problema. Intente nuevamente");
-    }
-}
-
-async function renderGraph() {
-    const graphType = "line";
-    const colorBG = "#" + randomHex(6);
-    const lineColor = "#" + randomHex(6);
-  
-    try {
-        const renderData = await loadData(coin);
-        const title = "Historico últimos 10 días";
-    
-        const config = {
-            type: graphType,
-                data: {
-                    labels: renderData.dates.reverse().slice(-10),
-                    datasets: [
-                        {
-                        label: title,
-                        borderColor: colorBG,
-                        backgroundColor: lineColor,
-                        data: renderData.graphData.reverse().slice(-10),
-                        },
-                    ],
-                },
-        };
-        
-        if (window.chartDOM) {
-            window.chartDOM.destroy(); 
-        }
-
-        window.chartDOM = new Chart(chartDOM, config);
-    } catch(err) {
-        alert("Hubo un fallo en la carga de datos, por favor, reintente")
-    }
-}
-
-randomHex = (length) => ("0".repeat(length) + Math.floor(Math.random() * 16 ** length).toString(16)).slice(-length);
-
-function cleanPage() {
-    clp.value = "";
-    result.innerHTML="Resultado: ";
-    amount.innerHTML="Moneda a convertir: ";
-}
-    </script>
-
-</body>
+    <script src="./assets/js/main.js"></script>
+  </body>
 </html>
